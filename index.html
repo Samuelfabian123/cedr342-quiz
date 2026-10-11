@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CEDR 342 Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: single centred column, one question per screen, chapter chips on the start screen */
+:root{
+ --bg:#f5f8f6;--panel:#ffffff;--fg:#14211b;--muted:#5a6b62;--line:#d5e0d9;
+ --accent:#0b7a4b;--accent-fg:#ffffff;--good:#0b7a4b;--good-bg:#d9f2e4;--bad:#b3261e;--bad-bg:#fbe0dd;
+ --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;--body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1612;--panel:#16211b;--fg:#e6efe9;--muted:#93a69b;--line:#2a3a31;--accent:#3ecf8e;--accent-fg:#06150d;--good:#3ecf8e;--good-bg:#173a29;--bad:#ff8a80;--bad-bg:#3d1c1a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1612;--panel:#16211b;--fg:#e6efe9;--muted:#93a69b;--line:#2a3a31;--accent:#3ecf8e;--accent-fg:#06150d;--good:#3ecf8e;--good-bg:#173a29;--bad:#ff8a80;--bad-bg:#3d1c1a;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:17px/1.5 var(--body);padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:2rem;font-weight:800}h2{font-size:1.4rem}
+.eyebrow{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.sub{color:var(--muted);margin:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:.92rem;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toggle{display:flex;gap:8px;align-items:center;font-weight:600}
+.toggle input{width:20px;height:20px;accent-color:var(--accent)}
+.btn{background:var(--accent);color:var(--accent-fg);border:0;border-radius:8px;padding:12px 18px;font-weight:700;font-size:1rem}
+.btn.alt{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.link{background:none;border:0;color:var(--accent);font-weight:700;padding:4px 0;text-decoration:underline}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.top{display:flex;justify-content:space-between;gap:10px;font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.q{font-family:var(--display);font-size:1.3rem;font-weight:700;line-height:1.25;margin:0;text-wrap:balance}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;text-align:left;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.opt b{flex:none;width:1.6em;color:var(--muted)}
+.opt span{min-width:0;overflow-wrap:anywhere}
+.opt:not([disabled]):hover{border-color:var(--accent)}
+.opt.sel{background:var(--good-bg);border-color:var(--accent)}
+.opt.ok{background:var(--good-bg);border-color:var(--good)}
+.opt.no{background:var(--bad-bg);border-color:var(--bad)}
+.opt[disabled]{cursor:default}
+.fb{margin:0;font-weight:700}.fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
+.score{font-family:var(--display);font-size:3.2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+th:last-child,td:last-child{text-align:right}
+.wrong{border-left:3px solid var(--bad);padding-left:10px;display:flex;flex-direction:column;gap:2px}
+.wrong small{color:var(--muted)}
+.scroll{overflow-x:auto}
+form{display:flex;flex-direction:column;gap:14px}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:.95rem}
+input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;width:100%;min-width:0}
+input[type=text]:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.err{color:var(--bad);font-weight:700;margin:0}
+ul.rules{margin:0;padding-left:1.1em;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){.bar>i{transition:none}}
+</style>
+
+</head><body>
+<div class="wrap" id="app"></div>
+
+<script>
+const K="AAAADAADCCBBDCCCABDBDADBDCBCDBCCBBBACCCABDBCBCDAACAACCAABDACCAABDDBAABAACAACABCABBDDDDDACCDDBCDDCBCBACBBBBCDDAACAABAABBABBCAAADBBDDCDDDBDDCDDACABCABBBBABCDDCDBDAADCACCCCCAACDDACCDBADBABCDADBCACACAABDACBCABCCDDDDACACACCBBBDABBDDDBBBADBDCDDCCDBDDAACBDBD";
+const D=`Ch 1 Business Concept
+Which of these is a form of business ownership?|Sole proprietorship|Feasibility study|Franchise royalty|Trade credit
+Which of these is NOT a type of partnership?|Sole proprietorship|Limited liability partnership|Limited partnership|General partnership
+A partnership deed is important because it helps to...|share risks and liabilities among the partners|remove all taxes from the business|give one partner total control|replace the need for a bank account
+Networking is best described as...|a process through which entrepreneurs achieve their objectives and support economic growth|buying an existing business|keeping the books of account|a form of business ownership
+Which is a BENEFIT, not a problem, of strategic alliances?|Cultural and language barriers|Loss of autonomy|Lack of trust|Gaining competitive advantage
+The first stage of new venture creation is...|identifying a gap or market need|financing the venture|growth and scaling|execution and launch
+Notarising company deeds and opening a bank account fall under which registration requirement?|Screening procedure|Tax-related requirement|Environmental requirement|Labour and social security requirement
+Registering with pension fund administrators is part of the...|screening procedure|safety and health requirements|environmental requirements|labour and social security requirements
+Ch 2 Theories
+Which theory sees entrepreneurship as innovation through new combinations?|Schultz's human capital theory|Kirzner's alertness theory|Schumpeter's innovation theory|Knight's risk theory
+Kirzner's theory stresses that entrepreneurs...|destroy old industries through radical innovation|are mainly shaped by formal degrees|are alert to opportunities and profit from arbitrage|are only people who bear uninsurable risk
+Which theorist described entrepreneurs as gap-fillers and input-completers?|Schumpeter|Leibenstein|Drucker|Baumol
+Which theorist argues that institutions decide whether entrepreneurship is productive or unproductive?|Schultz|Baumol|Knight|Kirzner
+Which theory links entrepreneurship to education, skills and training?|Leibenstein's gap-filling theory|Kirzner's alertness theory|Schumpeter's innovation theory|Schultz's human capital theory
+Effectuation says entrepreneurs start with...|a finished business plan|a large external loan|the means they already have|a complete forecast of the market
+The Igbo apprenticeship system (Igba Boi) develops entrepreneurs through...|short classroom workshops only|foreign franchise training|long practical training followed by settlement support|government grants only
+A reason Nigerian government entrepreneurship programmes had limited long-term impact was that they...|had too many trained participants|were overregulated by banks|focused on funding rather than systematic innovation|offered too little publicity
+Ch 3 Role of Entrepreneur
+Bringing together resources such as money to run the business is the entrepreneur's role as an...|organiser|leader|risk taker|innovator
+Taking financial and personal risks in order to make a profit is the role of a...|organiser|risk taker|problem solver|decision maker
+Guiding and motivating employees and setting goals shows the entrepreneur as a...|innovator|organiser|risk taker|leader
+Which is NOT a benefit of teleconferencing?|Cost saving|Higher travel and accommodation costs|Faster decision making|Remote meetings
+Which is a major advantage of IT application noted by Folake, Osunmadewa and Oduroye (2024)?|Higher dependence on traditional sectors|Less customer reach|Slower service delivery|Increased efficiency and productivity
+The advent of information technology sparked a wave of...|digital entrepreneurship|barter trade|cottage industries only|import substitution only
+A key role of cybercafes in entrepreneurship development is...|licensing new businesses|printing currency|replacing commercial banks|facilitating online learning, innovation and exposure to global best practices
+Ch 4 Drivers
+Which is a barrier to entrepreneurship development?|Passion and personal fulfilment|Skill deficiencies|Opportunity recognition|Flexibility and autonomy
+Which is a key driver of entrepreneurship?|Guaranteed profit|Absence of competition|Government monopoly|Job dissatisfaction
+Which is a reason people venture into business?|Guaranteed customers|Automatic access to capital|Poverty alleviation|Avoiding all risk
+Why should you reflect on your personal business goals before choosing a venture?|To guarantee that you will never fail|To choose a business that fits your values, skills and interests|To avoid writing a business plan|To skip market research
+Economic growth and entrepreneurship relate in that...|only entrepreneurship affects growth|only growth affects entrepreneurship|each influences the other|there is no relationship
+To accomplish his goals an entrepreneur must be...|unwilling to take risks|dependent on others for every decision|rigid in decision making|able to plan and ready to decide under uncertainty
+Ch 5 Starting a Business
+Which is NOT one of the three ways of starting a business?|Inheriting or acquiring a business|Listing it on the stock exchange first|Buying an existing business|Starting from scratch
+Which is a disadvantage of starting a new business?|Ability to determine business direction|Cost minimisation|Weak financial base|Flexibility
+Which is a financial reason why new ventures fail?|Planning for setbacks|Keeping accurate records|Extending credit too freely|Starting with realistic capital
+Which is a key ingredient of a successful new venture?|Ignoring customers|Market demand and research|Total reliance on loans|Avoiding a business plan
+Which is an advantage of starting a new business?|Absence of professional guidance|Lifestyle goals can be met|Lack of experience|Poor location selection
+Which is NOT needed to start and run a business?|Managing employees|Ignoring record keeping|Beginning with planning|Knowing your customers
+Ch 6 Growth and Development
+An increase in sales, assets and workforce is business...|growth|development|resilience|mitigation
+Stronger management systems and better organisation structures are examples of business...|consolidation|growth|development|failure
+In Ansoff's matrix, which strategy carries the lowest risk?|Market development|Product development|Market penetration|Diversification
+In Ansoff's matrix, which strategy carries the highest risk?|Market penetration|Market development|Diversification|Product development
+Creating new or improved products for existing customers is...|product development|market penetration|diversification|market development
+Entering new geographic areas with an existing product is...|product development|market development|market penetration|diversification
+Business resilience means...|reducing staff to save cost|avoiding all risk|selling more of the same product|the ability to recover quickly from setbacks
+Ch 7 HR Issues
+Which is one of David Ulrich's categories of HR roles?|Sales agent|Strategic partner|Tax collector|Production manager
+Which is a function of Human Resource Management?|Product pricing|Site selection|Training and development|Machine maintenance
+A known problem of HRM in small businesses is...|excessive HR budgets|marginalisation of the HR department|too many HR specialists|HR controlling all decisions
+Staff performance appraisal is used mainly to...|avoid motivating staff|reduce the number of customers|evaluate employees and guide their training and development|replace the reward system
+Reward and incentive systems are used to...|avoid training|punish absentees only|reduce productivity|motivate and retain employees
+From the strategic approach, HRM is concerned with...|getting workers to put in their best for the organisation|only keeping records|only recruiting staff|only paying salaries
+Ch 8 Labour and Resources
+Labour management involves...|planning, organising, motivating and supervising employees within legal frameworks|marketing products|buying equipment|only paying wages
+Which is NOT one of the four types of resources in a business?|Information resources|Financial resources|Political resources|Human resources
+Which is an importance of labour management?|It ensures industrial harmony|It stops all competition|It removes the need for rules|It increases absenteeism
+A warehouse is classified as which type of business premises?|Storage facility|Commercial office|Retail shop|Service establishment
+Which is a Nigerian insurance company named in the filler?|Dangote Cement|Julius Berger|Leadway Assurance|Flutterwave
+A reason a business needs insurance is that it...|replaces employees|guarantees profit|protects against financial losses|removes all tax
+Ch 9 Decision Making
+The first step in the decision making process (per the filler) is...|definition of the problem|evaluation|follow-up action|framing the decision
+The last step in the filler's six-step decision process is...|follow-up action|definition of the problem|formation of a model|collection of data
+Which pair of decision types is listed in the filler?|Fictional and factual|Routine and strategic|Domestic and foreign|Visible and invisible
+Decision making is...|a purely physical process|the same as problem avoidance|always done alone|the process of selecting a course of action
+Unethical negotiation tactics tend to...|undermine trust and damage long-term relationships|have no effect|build lasting relationships|improve long-term decisions
+Which is an example of a modern communication channel?|Telephone conversation|Handwritten letters|Zoom and WhatsApp|Face-to-face meetings
+Opportunity discovery involves...|cutting costs only|copying competitors only|identifying and evaluating unmet needs and market gaps|ignoring customers
+Ch 10 Business Location
+Which is an objective of business location?|Holding minimum investment and operating costs|Maximising rent|Ignoring employee welfare|Avoiding government regulations
+Knowing the chance of crime in an area is the location factor of...|security|business rates|accessibility|competition
+Business rates matter in location choice because...|they affect only large firms|cash flow determines business survival|they are always zero|they attract customers
+Considering the skill base of an area means...|choosing the cheapest land only|avoiding trained workers|ignoring labour supply|looking for healthy local talent
+Potential for growth in location choice asks whether...|rent is zero|competitors are absent|the owner likes the area|the premises can accommodate business growth
+Business location analysis is...|a tax return|a dynamic procedure for comparing the suitability of alternative sites|buying land only|choosing the first available site
+Which is a criterion for screening regional and state locations?|Availability of raw materials|Number of billboards|Colour of the building|The owner's birthplace only
+Ch 11 Locating a Venture
+The location of a business refers to...|the geographical area or site where business activities are carried out|the name of the business|the owner's home town only|the business logo
+The first procedure in selecting a specific location is...|evaluation of location factors|identification of business needs|risk and environmental assessment|cost-benefit analysis
+Which area is NOT good for locating a business?|An area with low market demand|An area near target customers|An area near suppliers|An area with a skilled workforce
+Short-term location considerations focus on...|immediate or temporary operational needs|share prices|ownership succession|future growth and sustainability
+Market identification affects location choice because...|it raises transport costs|customers must travel far|you locate near the customers who buy from you|it ignores competition
+A feasibility study helps location decisions by...|reducing financial risk|guaranteeing profit|setting government policy|removing all competition
+Which is a benefit of systematic location planning?|Cost reduction|Operational inefficiency|Poor market access|Higher risk
+Ch 12 Bookkeeping
+Bookkeeping is...|only paying taxes|hiring staff|the systematic recording of daily business transactions|preparing advertisements
+In double entry, for a REAL account you...|debit what comes in and credit what goes out|credit what comes in and debit what goes out|debit the giver|credit all expenses
+In double entry, for a NOMINAL account you...|credit the receiver|debit expenses and losses and credit incomes and gains|debit what goes out|debit incomes and credit expenses
+A business pays rent of N50,000 by cash. The entry is...|debit Rent account, credit Capital account|debit Capital account, credit Cash account|debit Rent account, credit Cash account|debit Cash account, credit Rent account
+A debit note is issued to...|a supplier for goods returned|a customer for goods returned|the tax authority|the bank
+A contra entry in the cash book is when...|a customer pays on credit|cash is paid into or withdrawn from the bank, affecting both columns|goods are returned to a supplier|rent is paid
+Chidi started with N100,000 cash, bought goods for cash N30,000, sold goods for cash N15,000, paid rent N8,000, received N5,000 from Ifeanyi, paid Mrs Okonkwo N15,000, withdrew N5,000 and paid wages N7,000. His closing cash balance is...|N75,000|N55,000|N65,000|N120,000
+In Chidi's trial balance as at 31 March, the total of each side is...|N147,000|N127,000|N120,000|N137,000
+After March 15, Ifeanyi (who bought N12,000 of goods on credit and paid N5,000) owes Chidi...|N17,000|N12,000|N5,000|N7,000
+Ch 13 Interpersonal Skill
+The primary goal of interpersonal skills is to...|increase production only|avoid conflict at all cost|reduce staff|enhance communication, collaboration and relationship building
+Which is a way to improve interpersonal skills?|Avoiding people|Ignoring others' views|Avoiding feedback|Attending workshops and classes
+Strong interpersonal skills help to...|avoid listening|increase conflict|reduce collaboration|increase empathy and improve relationships
+Effective communication builds relationships by...|conveying messages clearly and concisely|avoiding eye contact|talking only|using vague language
+Interpersonal skills such as active listening help leaders because...|conflict increases|decisions become slower|subordinates feel listened to and express their ideas|subordinates stop talking
+Asking for constructive criticism from someone you trust helps you to...|win every argument|reduce self-awareness|improve how you interact with others|avoid change
+Ch 14 Franchising
+Which is a fee paid by a franchisee to the franchisor?|Pension contribution|Customs duty|Bank overdraft charge|Ongoing royalty fee
+Ongoing royalty fees are usually...|refunded yearly|paid to the government|a fixed salary|a percentage of sales
+Which franchise type is most favourable to the franchisee because it gives a complete proven system and brand name?|Manufacturing franchising|Business format franchising|Product distribution franchising|Sole franchise
+Which is an advantage of franchising to the franchisee?|Ongoing investment|Lack of financial privacy|Lower failure rate|Restricting regulations
+Which is a disadvantage of franchising to the franchisee?|Buying power|Brand recognition|Business assistance|Restricting regulations
+Which is an advantage of franchising to the franchisor?|Federal and state regulations|Increased legal disputes|Loss of brand control|Efficient growth with minimal employee supervision
+Which is a disadvantage of franchising to the franchisor?|Minimal employee supervision|Access to capital|Loss of complete brand control|Efficient growth
+Ch 15 Time Management
+A Gantt chart is a...|communication tool|planning tool|financial statement|tracking tool
+A Pomodoro timer is a...|legal document|communication tool|tracking tool|planning tool
+Slack and Microsoft Teams are...|accounting tools|communication and collaboration tools|planning tools|tracking tools
+The first of the eight steps to successful time management is...|set clear and achievable goals|delegate responsibilities|remain flexible|reward effort
+A benefit of time management is...|poorer decisions|lower productivity|reduced stress and fatigue|more procrastination
+In developing a time management plan, the step right after listing and categorising tasks is...|selecting tools|allocating time|reflecting and improving|setting deadlines
+The last step in developing a time management plan is...|allocate time|reflect and improve|select tools|define objectives
+Ch 16 Cooperatives
+A cooperative is...|a government ministry|an organisation carrying on economic activities for the mutual benefit of its members|a company owned by one person|a private bank
+Which is a principle of cooperatives?|Ownership by one person|Democratic member control|Control by outsiders|Compulsory membership
+"One member, one vote" belongs to which principle?|Education and training|Member economic participation|Democratic member control|Voluntary and open membership
+Which is an objective of forming a cooperative?|Avoiding member participation|Increasing prices|Maximising profit for one owner|Promotion of savings and investment
+Which is an advantage of cooperatives?|No access to credit|Members lose all say|Higher costs for members|Members gain better bargaining power on price and quality
+Which is a challenge facing cooperatives in Nigeria?|Limited access to external funding|Too much skilled leadership|Excess funding|No members
+Voluntary and open membership means...|members are accepted regardless of religion or ethnicity|only family can join|membership is forced|only the rich can join
+Ch 17 Cooperative Management
+A cooperative society is...|a government agency|a one-person business|a voluntary association of persons united by a common bond to achieve common goals|a foreign company
+Cooperative societies can be classified on the basis of...|purpose and function|colour|distance from Lagos|age of the founder
+Which is a prospect of cooperative societies in Nigeria?|Combating unemployment and rural exodus|Increasing rural exodus|Lowering living standards|Reducing skill
+Which is a setback of cooperative societies?|Abundant funding|Mismanagement of funds|Excess capital|Strong management
+Which is a requirement for new cooperative entrepreneurship in Nigeria?|Appropriate entrepreneurship education and cooperative legislation|Removing all policies|Excluding the private sector|Banning cooperative laws
+The land tenure system is a...|setback to cooperative societies|type of insurance|prospect of cooperative societies|principle of cooperatives
+Ch 18 Conflict Resolution
+In negotiation, a position is...|why they want it|what someone says they want|a legal document|a third-party ruling
+In negotiation, an interest is...|the mediator|why someone wants something|what they say they want|the final agreement
+BATNA stands for...|Best Alternative to a Negotiated Agreement|Best Approach To New Agreements|Basic Agreement To Negotiate Always|Business Alliance for Trade and Networking
+Why identify your BATNA before negotiating?|It makes the other side give up|It protects you from accepting unfavourable terms out of fear of deadlock|It guarantees agreement|It removes the need to negotiate
+The first step of the mediation process is...|option generation|opening, where the mediator explains the process|agreement|interest exploration
+An entrepreneur should consider mediation when...|there is no dispute|everyone agrees|direct communication has broken down|profit rises
+Which element should a written partnership agreement address?|Exit terms|Staff birthdays|Logo font|Office colour
+Constructive conflict...|strengthens relationships and systems by seeking understanding|damages relationships|attacks people rather than problems|avoids all discussion
+Ch 19 Environmental Conflict
+External conflict refers to disagreement arising from...|global geopolitical tensions, cross-border insurgency and economic crises|local market disputes only|family quarrels only|staff disputes only
+Violent conflict refers to...|peaceful negotiation|a court case|a trade dispute|systematic use of violence by armed groups to reach political objectives
+Which is a form of external conflict affecting Nigeria?|A staff meeting|Transnational terrorism and insurgency|Local sports rivalry|A family dispute
+Which is an effect of external conflict on business?|Higher foreign investment|Disruption of supply chains|Easier imports|Lower operating costs
+Persistent conflict over the long run will...|have no effect|improve business planning|increase long-term investment|reduce investment in long-term technologies
+According to the UN University brief, when the private sector provides jobs for young men, this can...|have no effect|increase conflict|cause war|dampen conflict
+Ch 20 ICT
+Which is an ICT tool used in business?|Ledger paper|Calendar paper|Email|Wheelbarrow
+The first step in implementing an ICT strategy is...|implementation and integration|monitoring and evaluation|staff training|identification of business needs
+The last step in implementing an ICT strategy is...|selection of tools|identification of business needs|assessment of existing resources|monitoring and evaluation
+Paystack and Flutterwave are examples of...|franchise chains|accounting textbooks|insurance firms|online payment gateways
+Cloud computing is useful to SMEs because it...|requires expensive hardware|reduces IT costs and allows access from anywhere|prevents scaling|blocks collaboration
+ICT can lead to job displacement because...|it creates no demand for new skills|it removes all digital skills|it increases manual work|automation can replace manual roles
+Cybersecurity is a major concern for businesses because...|ICT removes all risk|attacks cause no loss|SMEs always have strong security|ICT exposes them to hacking, phishing and data breaches
+One way to reduce ICT-related risk is to...|skip software updates|remove firewalls|train employees on cybersecurity awareness|use weak passwords
+Ch 21 Technology Solutions
+A market or customer solution is...|a loan|a product with no buyers|a government rule|a value-creating response to an identified customer problem or unmet demand
+Problem-oriented entrepreneurship starts with...|a product, then customers|a loan|a skill or idea only|understanding the customer's pain point
+Product-oriented entrepreneurship starts with...|a product, skill or idea, then a search for customers|a feasibility study|the customer's pain point|market research only
+Which technology tool helps entrepreneurs understand customer preferences?|Newspaper obituaries|Telex machines|Social media analytics and online reviews|Paper receipts only
+Emerging technologies are...|newly developed or rapidly evolving innovations with potential to transform industries|outdated technologies|only used by banks|only hardware
+Artificial intelligence supports strategic decisions through...|removing data|predictive analytics that help forecast demand and manage risks|slower analysis|random guessing
+The Internet of Things (IoT) enables...|manual record keeping only|slower operations|real-time monitoring, automation and data-driven decisions|paper filing
+Ch 22 Financing
+A disadvantage of debt financing is that...|loans must be repaid with interest and strain cash flow|no interest is charged|ownership is diluted|investors take control
+Equity financing means...|borrowing from a bank|raising money by selling a share of ownership to investors|using trade credit|using an overdraft
+An advantage of debt financing is that...|there is no repayment|ownership of the business is not diluted|interest is never charged|repayments are optional
+Which is NOT one of the five Cs of credit?|Collateral|Currency|Capacity|Character
+Trade credit and bank overdrafts are examples of...|equity finance|short-term finance|long-term finance|grants
+Debentures and preference shares are examples of...|long-term finance|short-term finance|trade credit|overdrafts
+Which is a phase of early-stage financing?|Second-stage financing|Seed financing|Third-stage financing|Retirement financing
+A tech startup with no revenue needs N10 million to scale. The filler suggests...|a cooperative loan|a bank loan|venture capital|trade credit
+Which source of funding shows personal commitment and has no interest or repayment?|Bank loan|Debentures|Venture capital|Personal savings (bootstrapping)
+Ch 23 Financial Management
+Financial management primarily involves...|recruiting employees|advertising products|producing goods only|planning, organising, directing and controlling financial resources
+Which financial document is commonly used for performance evaluation?|Marketing plan|Production schedule|Balance sheet|Attendance record
+A company has current assets of N80,000, inventory of N20,000 and current liabilities of N40,000. The quick ratio is...|2|1|0.5|1.5
+With the same figures, the current ratio is...|0.5|2|4|1.5
+Sales of N200,000 and net profit of N40,000 give a net profit margin of...|10%|15%|25%|20%
+Working capital is best described as...|funds required for the daily operations of a business|funds for long-term investments only|money kept permanently in savings|money used only for advertising
+Ch 24 Financial Discipline
+Financial discipline is the strategic ability of an organisation to...|plan, acquire, allocate and monitor financial resources prudently|spend without limit|avoid all records|ignore budgets
+An investment decision is concerned with...|how profit is shared|hiring staff|paying tax only|allocating funds to assets and projects expected to generate returns
+A dividend decision is concerned with...|buying equipment|hiring staff|how profit is distributed or reinvested|choosing a location
+Which is an incidental function of financial management?|Taxation|Cash flow management|Building an emergency fund|Budgeting and forecasting
+Which is a core process that protects a business from unforeseen crises?|Spending all profits|Ignoring cash flow|Budgeting and forecasting|Avoiding insurance
+An emergency fund provides...|more debtors|higher taxes|a buffer against unexpected expenses|extra advertising
+Ch 25 Expansion
+Entering new areas, territories or countries with existing products is...|diversification|market penetration|market development|product development
+Creating new products or services for existing and new customers is...|market development|consolidation|product development|market penetration
+Entering new lines of activity through internal or external means is...|product development|market penetration|diversification|market development
+Business consolidation is...|combining multiple business units into one larger organisation to improve efficiency and market share|closing a business|splitting a company into many|selling shares only
+In a merger, two companies...|combine to form one new company|stay separate|are bought with the buyer surviving|close down
+In an acquisition...|both close|two companies form a new one|one company buys another and the buyer survives|nothing changes
+Which is a challenge of business expansion?|Less competition|Lower compliance|Less inventory|Need for extensive working capital
+Which factor should you consider before expanding?|The colour of the logo|The owner's age only|Holiday dates|Existing funds
+Ch 26 Survival Strategy
+A survival strategy refers to...|deliberate actions taken to sustain operations during difficult periods|ways to expand quickly|ways to increase dividends|ways to start a franchise
+Which is a cause of downsizing and retrenchment?|Strong demand|Rapid profit growth|Persistent financial losses|Increased market share
+Which is NOT a cause of downsizing?|Economic recession|Competitive pressure|Rising profits and market share|Technology disruption
+Which is a type of retrenchment?|Market retrenchment|Brand retrenchment|Profit retrenchment|Asset retrenchment
+Total quality management (TQM) is...|a marketing campaign|a holistic, organisation-wide approach to embedding quality in every activity and process|a tax scheme|an accounting method
+Which is a benefit of TQM?|Increased customer satisfaction|Higher costs|Lower employee involvement|Poorer quality
+Which is a form of retrenchment?|Franchise licensing|Dividend payment|Brand expansion|Workforce (human resource) retrenchment
+Ch 27 Networks
+A network is...|a tax system|a set of units or nodes and the relations among them|a bank account|a single business
+Which factor contributes to the success of a network?|Trust|Isolation|Secrecy|Competition only
+Which is a type of network?|Private network|Horizontal network|Diagonal network|Circular network
+Which is an advantage of network marketing?|High start-up costs|No earning potential|Low start-up costs|No leverage
+Entrepreneurs with strong networks tend to...|avoid partners|have lower sales|lose access to resources|access resources that improve SME sales and profit
+Which is a step to successful networking?|Hold regular meetings|Avoid discussions|Avoid groups|Keep members unequal
+Networking refers to...|a tax filing|a bank loan|a legal contract|all the interactions of a company or individual in the network
+Ch 28 Practical Skills
+The first level of skill acquisition is...|expert|novice|proficient|competent
+When making soap with caustic soda you should...|work in a closed room|add water to the caustic soda|add the caustic soda to water, never the reverse|work without gloves
+The first step in tie-dyeing fabric is to...|prepare the fabric|rinse and reveal|tie the pattern|dye the fabric
+A make-up artist...|cuts hair only|sells fabric|specialises in applying cosmetics for creative and aesthetic purposes|offers manicures and pedicures only
+A beautician provides...|a broader range of beauty services such as skincare, facials and manicures|only stage make-up|only film make-up|only fabric dyeing
+Which is a career opportunity for trained make-up artists?|Fabric dyer|Event caterer|Bridal make-up artist|Soap seller
+Which is an element of event decoration?|Themed props|Dye|Yeast|Caustic soda
+In the liquid soap business, the first pricing step is to...|calculate the total production cost|set the lowest price possible|copy a rival's price|add profit before costs
+Lessons from Cosmas Maduka's journey include...|ignoring customers|hard work, discipline, honesty and perseverance|avoiding learning|quick shortcuts
+Ch 29 Business Pitch
+A business pitch is...|a legal contract|an accounting ledger|a tax return|a structured, persuasive presentation of a business idea to a specific audience
+Which pitch is used when you meet an investor unexpectedly?|Elevator pitch|Investor pitch|Grant pitch|Competition pitch
+An elevator pitch usually lasts about...|1 hour|5 to 10 minutes|30 to 60 seconds|2 days
+The first component of a winning pitch is...|the team|an eye-catching hook|the ask|the closing
+Traction in a pitch is evidence that...|the founder is confident|the business has a logo|the business is working, such as sales, customer growth or pilots|the business owns land
+Mind mapping is a brainstorming technique in which you...|draw a central problem or opportunity and branch out ideas|list only costs|copy a rival|avoid ideas
+To avoid too much text on slides you should...|use smaller fonts|use images, graphs and few words|add more paragraphs|read the slides aloud
+A pitch founder who says "there are no competitors" is...|showing strong confidence|showing traction|showing poor market research|showing a unique advantage
+Ch 30 Internationalization
+Internationalisation of business means...|closing foreign branches|avoiding exports|extending business activities outside the country of origin|selling only locally
+Which is a driver of SME internationalisation?|Poor networks|Isolation|Currency controls|Digital platforms and e-commerce
+Which is a barrier to SME internationalisation?|Strong finance|Simple procedures|Cultural similarity|Knowledge and information gaps
+Network-driven internationalisation helps SMEs because...|it removes all competition|networks raise uncertainty|it needs no partners|relationships reduce uncertainty and provide needed information
+One policy recommendation to support SME internationalisation is...|ending digital platforms|banning trade fairs|adding more paperwork|simplifying customs and certification through one-stop trade portals
+AfCFTA stands for...|African Continental Free Trade Area|Association for Commerce and Free Trade in Africa|African Customs and Financial Trade Agreement|African Centre for Foreign Trade Affairs
+Ch 31 Untapped SMEs
+Which is a benefit of tapping into untapped SME sectors?|Reduced diversity|Higher unemployment|Job creation|Less innovation
+SMEs are...|privately owned businesses with capital, workforce and assets below a set level|large multinational firms|stock exchanges|government agencies
+Which is a challenge of SMEs?|Excess infrastructure|Too much targeted support|Struggle to access financing|Unlimited talent
+Which is a reason SMEs fail?|Inadequate financial management|Operational efficiency|Strategic planning|Effective decision making
+Which is an untapped SME named in the filler?|Steel mills|Large-scale crude oil refining|Mobile car wash|Airlines
+Which is also an untapped SME named in the filler?|Shipbuilding|Oil exploration|Water purification and bottling|Automobile assembly plant
+Ch 32 Feasibility Study
+A feasibility study is...|a business plan|a check on whether a business idea will work and is worth pursuing before investing|a tax return|a loan agreement
+Which is a benefit of a feasibility study?|It replaces the business plan|It helps calculate return on investment|It guarantees profit|It removes competition
+Checking if you have the equipment or skills is which type of feasibility?|Legal feasibility|Technical feasibility|Market feasibility|Operational feasibility
+A pharmacy checking NAFDAC and PCN approval is doing which feasibility study?|Financial feasibility|Operational feasibility|Technical feasibility|Legal feasibility
+A feasibility study asks "should we do this?" while a business plan asks...|how we will do it successfully|whether to start|why competitors exist|who will fund it
+A feasibility study must come first because it...|replaces research|helps avoid wasting resources before committing|is a legal requirement for all firms|only matters for large firms
+In the seven steps of a feasibility study, the first is a...|market survey|preliminary analysis|projected income statement|go/no-go decision
+The final step in a feasibility study is...|reviewing and analysing data|market survey|preliminary analysis|the go/no-go decision
+Ch 33 Business Plan
+Which is NOT a feature of a start-up entrepreneurial entity?|Innovation orientation|Resource constraints|High uncertainty and risk|Guaranteed profitability
+Start-up capital is calculated as...|debtors + creditors|fixed assets + liabilities|equity + loans|fixed assets + working capital + pre-operating expenses
+A feasibility study answers the fundamental question...|How much profit will we make?|Should we do this business?|Who are our competitors?|How do we execute this business?
+A disadvantage of business planning is...|clarity of purpose|rigidity and over-reliance on the plan|performance monitoring|access to finance
+In demand-supply gap analysis, a gap of 1,200 tonnes means...|supply exceeds demand|there is unsatisfied market demand and so a business opportunity|the market is saturated|there is no opportunity
+A business plan is...|a formal written document outlining a business opportunity, strategy and expected outcomes|an advertisement|a loan receipt|a tax return
+A start-up needs fixed assets of N15,000,000, working capital of N4,000,000 and pre-operating expenses of N500,000. Total start-up capital is...|N18,500,000|N19,000,000|N20,500,000|N19,500,000
+Straight-line depreciation on a machine costing N10,000,000 with a 5-year life and N1,000,000 salvage value is...|N9,000,000 a year|N1,800,000 a year|N2,000,000 a year|N1,000,000 a year
+Which is an example of working capital?|Land|Buildings|Machinery|Stock and cash
+Which is a fixed asset?|Debtors|Stock|Machinery|Cash
+Gross profit is...|profit after all expenses and tax|total sales|total capital|profit after subtracting the direct cost of goods sold
+Cash flow projection is more critical than profitability projection because...|profit and cash are the same thing|cash does not affect operations|profit is irrelevant|profit without cash can still cause business failure
+In the poultry farm example, fixed assets of N920,000, working capital of N700,000 and pre-operating expenses of N200,000 give start-up capital of...|N1,720,000|N1,920,000|N1,820,000|N1,620,000
+Borrowing N5,000,000 at 12% for 4 years in equal annual instalments gives an annual payment of about...|N1,800,000|N1,500,000|N1,646,172|N1,250,000
+The interest in Year 1 of that N5,000,000 loan is...|N500,000|N474,489|N1,646,172|N600,000
+A projected profit before tax of N1,155,000 with 20% tax gives profit after tax of...|N1,155,000|N924,000|N231,000|N1,386,000
+A business with sales of N20 million shows negative cash flow for eight months. This is possible because...|sales are always cash|profit equals cash|cash flow ignores sales|profit and cash flow are not the same
+Ch 34 Exits
+Which reason shows a business might close while still being successful?|Bankruptcy|Loss of all customers|Persistent losses|Retirement of the owner or sale at a profit
+Closure rates are not a reliable measure of business failure because...|many closures result from successful exits|failed firms never close|closures never happen|closures are always failures
+A strategic acquirer buys a business mainly to...|gain synergies, market share or technology|earn investment returns only|avoid growth|close it down
+A financial acquirer buys a business mainly to...|remove competition|integrate it into its operations|earn investment returns|gain synergies
+Which acquirer generally pays a higher price?|A government agency|A strategic acquirer|A cooperative|A financial acquirer
+Reducing customer concentration adds value because...|it raises risk|it removes customers|it lowers sales|a diversified customer base gives more stable revenue
+Which is a family business succession issue?|Abundant management depth|Lack of formal succession planning|Strong governance|Too many exit options
+Creating Shared Value (CSV) differs from simply operating responsibly because it...|ignores the community|reduces value|only avoids harm|creates economic value for the company and societal value for the community`;
+const Q=[];let chN='',n=0;
+D.split('\n').forEach(l=>{if(!l.includes('|')){chN=l;return}const p=l.split('|');Q.push({ch:chN,q:p[0],o:p.slice(1,5),a:'ABCD'.indexOf(K[n++])})});
+const CH=[...new Set(Q.map(x=>x.ch))];
+const app=document.getElementById('app');
+let sel=new Set(CH),shuffle=true,run=null;
+const L='ABCD';
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+let student=null;
+try{student=JSON.parse(localStorage.getItem('cedr342-student')||'null')}catch(e){}
+const LIMIT=70;
+function login(msg){
+ run=null;
+ const s=student||{name:'',reg:''};
+ app.innerHTML=`
+ <div><div class="eyebrow">UNN · CEDR 342</div><h1>Entrepreneurship and Small Business</h1>
+ <p class="sub">Exam practice. Sign in with your name and registration number to start.</p></div>
+ <form class="panel" id="lf" novalidate>
+  <label class="f" for="nm">Full name<input type="text" id="nm" autocomplete="name" value="${esc(s.name)}" placeholder="e.g. Chinedu Okafor"></label>
+  <label class="f" for="rg">Registration number<input type="text" id="rg" inputmode="text" autocomplete="off" value="${esc(s.reg)}" placeholder="e.g. 2020/123456"></label>
+  <p class="err" id="er" ${msg?'':'hidden'}>${msg||''}</p>
+  <button class="btn" type="submit">Sign in</button>
+ </form>
+ <div class="panel"><b>Exam rules</b><ul class="rules"><li>70 random questions each attempt.</li><li>No answers show until you submit.</li><li>You can go back and change answers before submitting.</li><li>Your score and corrections show at the end.</li></ul></div>`;
+ document.getElementById('lf').onsubmit=e=>{
+  e.preventDefault();
+  const name=document.getElementById('nm').value.trim().replace(/\s+/g,' '),reg=document.getElementById('rg').value.trim().toUpperCase();
+  if(name.length<3)return login('Enter your full name.');
+  if(!/\d{4,}/.test(reg)||reg.length<6)return login('Enter a valid registration number, for example 2020/123456.');
+  student={name,reg};
+  try{localStorage.setItem('cedr342-student',JSON.stringify(student))}catch(e){}
+  home();
+ };
+}
+function start(){
+ const pool=Q.filter(x=>sel.has(x.ch));
+ let items=shuf(pool).slice(0,LIMIT).map(x=>{let opts=x.o.map((t,i)=>({t,c:i===x.a}));if(shuffle)opts=shuf(opts);return{ch:x.ch,q:x.q,opts}});
+ begin(items);
+}
+function begin(items){run={items,i:0,ans:items.map(()=>-1),warned:false};renderQ()}
+
+function home(){
+ run=null;
+ const cnt=Math.min(LIMIT,Q.filter(x=>sel.has(x.ch)).length);
+ app.innerHTML=`
+ <div><div class="eyebrow">UNN · CEDR 342</div><h1>Exam practice</h1>
+ <p class="sub">Each attempt is ${LIMIT} random questions from the ${Q.length} in the bank. Answers and score show only after you submit.</p></div>
+ <p class="sub">Signed in: <b>${esc(student.name)}</b> · ${esc(student.reg)} · <button class="link" id="out">Change</button></p>
+ <div class="panel">
+  <div class="row" style="justify-content:space-between"><b>Chapters</b>
+   <span><button class="link" id="all">Select all</button> · <button class="link" id="none">Clear</button></span></div>
+  <div class="chips" id="chips">${CH.map(c=>`<button class="chip" aria-pressed="${sel.has(c)}" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+  <label class="toggle"><input type="checkbox" id="sh" ${shuffle?'checked':''}> Shuffle options</label>
+ </div>
+ <button class="btn" id="go" ${cnt?'':'disabled'}>Start exam (${cnt} questions)</button>`;
+ document.getElementById('chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const c=b.dataset.c;sel.has(c)?sel.delete(c):sel.add(c);home()};
+ document.getElementById('all').onclick=()=>{sel=new Set(CH);home()};
+ document.getElementById('none').onclick=()=>{sel=new Set();home()};
+ document.getElementById('sh').onchange=e=>{shuffle=e.target.checked};
+ document.getElementById('go').onclick=start;
+ document.getElementById('out').onclick=()=>login();
+}
+
+function renderQ(){
+ const it=run.items[run.i],tot=run.items.length,last=run.i===tot-1,cur=run.ans[run.i];
+ const left=run.ans.filter(x=>x<0).length;
+ app.innerHTML=`
+ <div class="top"><span>${esc(it.ch)}</span><span>${run.i+1} / ${tot}</span></div>
+ <div class="bar"><i style="width:${(tot-left)/tot*100}%"></i></div>
+ <div class="panel">
+  <h2 class="q">${esc(it.q)}</h2>
+  <div class="opts" id="opts">${it.opts.map((o,j)=>`<button class="opt${cur===j?' sel':''}" aria-pressed="${cur===j}" data-j="${j}"><b>${L[j]}</b><span>${esc(o.t)}</span></button>`).join('')}</div>
+  ${last&&run.warned&&left?`<p class="fb no">${left} question${left>1?'s':''} not answered. Tap Submit again to finish anyway.</p>`:''}
+ </div>
+ <div class="row"><button class="btn alt" id="prev" ${run.i?'':'disabled'}>Previous</button><button class="btn" id="next">${last?'Submit':'Next'}</button><button class="link" id="quit">Quit</button></div>
+ <p class="sub" style="font-size:.9rem">${tot-left} of ${tot} answered. You can go back and change any answer before submitting.</p>`;
+ document.getElementById('opts').onclick=e=>{const b=e.target.closest('.opt');if(b){run.ans[run.i]=+b.dataset.j;run.warned=false;renderQ()}};
+ document.getElementById('prev').onclick=()=>{run.i--;renderQ()};
+ document.getElementById('next').onclick=()=>{
+  if(!last){run.i++;renderQ();return}
+  if(left&&!run.warned){run.warned=true;renderQ();return}
+  results();
+ };
+ document.getElementById('quit').onclick=home;
+}
+
+function results(){
+ const r=run.items.map((it,k)=>({it,j:run.ans[k],ok:run.ans[k]>=0&&it.opts[run.ans[k]].c}));
+ const tot=r.length,got=r.filter(x=>x.ok).length,pct=Math.round(got/tot*100);
+ const by={};r.forEach(x=>{const b=by[x.it.ch]||(by[x.it.ch]={g:0,t:0});b.t++;if(x.ok)b.g++});
+ const wrong=r.filter(x=>!x.ok);
+ const msg=pct>=80?'Strong. Keep this up.':pct>=60?'Decent. Revise the missed ones below.':'Go through the summary again, then retry.';
+ app.innerHTML=`
+ <div><div class="eyebrow">Result · ${esc(student.name)} · ${esc(student.reg)}</div><div class="score">${got}/${tot}</div><p class="sub">${pct}%. ${msg}</p></div>
+ <div class="panel"><b>By chapter</b><div class="scroll"><table><thead><tr><th>Chapter</th><th>Score</th></tr></thead><tbody>
+ ${Object.keys(by).map(c=>`<tr><td>${esc(c)}</td><td>${by[c].g}/${by[c].t}</td></tr>`).join('')}</tbody></table></div></div>
+ ${wrong.length?`<div class="panel"><b>Missed (${wrong.length})</b>${wrong.map(x=>{const c=x.it.opts.find(o=>o.c).t;return`<div class="wrong"><span>${esc(x.it.q)}</span><small>Your answer: ${x.j>=0?esc(x.it.opts[x.j].t):'none'}</small><b>Answer: ${esc(c)}</b></div>`}).join('')}</div>`:'<div class="panel"><b>No mistakes. Full marks.</b></div>'}
+ <div class="row">${wrong.length?'<button class="btn" id="retry">Retry missed</button>':''}<button class="btn alt" id="again">New exam</button></div>`;
+ const rt=document.getElementById('retry');
+ if(rt)rt.onclick=()=>begin(shuf(wrong.map(x=>x.it)));
+ document.getElementById('again').onclick=home;
+ window.scrollTo(0,0);
+}
+student?home():login();
+</script>
+
+</body></html>
